@@ -1,6 +1,32 @@
 <?php
-$mainPaket = 2;
-$ping = exec("ping -n 1 www.google.com");
+session_start();
+if($_SESSION['user_status']!="ngewaifu"){
+  header("location:../index.php?pesan=belum_login");
+}
+include '../db.php';
+// API Mikrotik Dummy Variable
+$penggunaan = "1334354";
+
+
+//DB
+$userSpecific = $_SESSION['email'];
+$dataUserRaw = mysqli_query($konek,"SELECT * FROM user_client WHERE email='$userSpecific'");
+foreach($dataUserRaw as $dataUser);
+$hargaView = number_format($dataUser['harga']);
+$getIp = $dataUser['ip'];
+$namaUser = $dataUser['nama'];
+$banter = $dataUser['kecepatan'];
+//ping GET From Server
+$url="http://home.eula.my.id/getping.php/?ip=$getIp";
+ 
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_URL, $url);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+$ping = curl_exec($curl);
+curl_close($curl);
+
+
+//$ping = exec("ping -n 1 www.google.com");
 ?>
 <!doctype html>
 <html lang="id">
@@ -41,12 +67,12 @@ $ping = exec("ping -n 1 www.google.com");
         <!-- Dropdown NAV -->
         <div class="dropdown">
             <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            Eula Lawrence
+            <?php echo $namaUser ?>
             </a>
 
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
     <li><a class="dropdown-item" href="profil.php">Profil</a></li>
-    <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
   </ul>
 </div>
 
@@ -64,9 +90,9 @@ $ping = exec("ping -n 1 www.google.com");
             <div class="card text-center" style="max-width: 50rem; height: 20rem;">
                 <div class="card-body text-center">
                     <h5 class="card-title">Layanan Anda</h5>
-                    <h1><?php echo $mainPaket ?></h1>
+                    <h1><?php echo $banter ?></h1>
                     <h5 class="card-title">Mbps</h5>
-                    <a class="btn btn-outline-secondary" href=" https://api.whatsapp.com/send/?phone=+6285608698687&text=Mau Upgrade Paket Dari <?php echo $mainPaket ?> Mbps ke " role="button">Upgrade</a>
+                    <a class="btn btn-outline-secondary" href=" https://api.whatsapp.com/send/?phone=+6285608698687&text=Mau Upgrade Paket Dari <?php echo $banter ?> Mbps ke " role="button">Upgrade</a>
                     
                 </div>
             </div>
@@ -79,7 +105,7 @@ $ping = exec("ping -n 1 www.google.com");
             <div class="card mb-3" style="max-width: 100rem;">
                 <div class="card-body">
                     <p class="card-text">Tagihan Bulanan Anda <span class="badge bg-danger">Belum Dibayar</span></p>
-                    <h5 class="card-title">Rp. 100.000</h5>
+                    <h5 class="card-title">Rp. <?php echo $hargaView ?></h5>
                 </div>
             <div class="card-footer">Bayar Sebelum 20 Januari 2023 </div>
             </div>
