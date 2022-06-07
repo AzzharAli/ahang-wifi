@@ -25,6 +25,12 @@ curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 $ping = curl_exec($curl);
 curl_close($curl);
 
+function splitPingJson($splitPingJson){
+  $ping = explode('m', explode(' ', explode('"', $splitPingJson, 10)[3], 10)[2], 2)[0];
+  //$ping = explode('"', $splitPingJson, 10);
+  return($ping);
+}
+
 
 //$ping = exec("ping -n 1 www.google.com");
 ?>
@@ -124,7 +130,7 @@ curl_close($curl);
                     <p class="card-text">Status Jaringan</p>
                     <h5 class="card-title"><i class="bi bi-wifi"></i> Normal</h5><!-- Normal <i class="bi bi-wifi"></i> | Gangguan Massal | Perbaikan <i class="bi bi-wifi-off"></i> -->
                 </div>
-            <div class="card-footer">Ping Server <?php echo $ping ?></div>
+            <div class="card-footer">Ping Server <?php echo splitPingJson($ping); ?></div>
             </div>
 
 
