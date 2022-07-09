@@ -1,0 +1,10 @@
+Cara Pemasangan di Windows Xampp:
+
+1. Pastikan API MikroTik dalam keadaan aktif (cek di IP > Services > api)
+2. Pastikan sudah menginstall Xammp dan sudah berjalan dengan baik
+3. Buka phpmyadmin dan buat database baru bernama "dashboard_data" 
+4. Buka file SQL di folder prosedur dengan notepad++ atau aplikasi sejenis kemudian copy semua isi file
+5. klik tab sql pada database yang anda buat kemudian paste semua isi file kemudia klik go
+6. Ganti Koneksi database di ../config/koneksi.php
+7. Ganti Koneksi API MikroTik di ../RB_connect.php
+8. Enjoy!

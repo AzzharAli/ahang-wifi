@@ -2,6 +2,8 @@
 
 
 require('../mikrotik_api.php');
+require('../function.php');
+$api_id = 1;
 
 
 
@@ -21,14 +23,28 @@ require('../mikrotik_api.php');
     // }
     
 
-    // All View
-    // $allview = json_encode($getDataInterface);
-    // echo $allview;    
+     $allview = json_encode($getDataInterface);
+     echo $allview;    
+   //   foreach($getDataInterface as $data){
+   //    if(!empty($data['comment'])){
+   //       if(explode('-', $data['comment'], 3)[0] == "cl"){
+   //          if(explode('-', $data['comment'], 3)[1] == $api_id){
+   //             $value = $data['bytes'];
+   //             echo "<th> $value</th>";
+   //          }else{
 
+   //          }
+   //       }else{
+             
+   //       }
+   //   }else{
+
+   //   }
+   //   }
     
-    foreach($getDataInterface as $data){
-        echo(explode('/',$data['max-limit'],2)[1]) . '<br>';
-    }
+    // foreach($getDataInterface as $data){
+    //     echo(explode('/',$data['max-limit'],2)[1]) . '<br>';
+    // }
 
 
 
@@ -42,6 +58,10 @@ require('../mikrotik_api.php');
 //     //commentRead();
 //     echo $viewData['comment'];
 // }
+
+
+
+
 
    $API->disconnect();
 

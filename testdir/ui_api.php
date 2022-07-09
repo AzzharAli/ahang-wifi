@@ -1,66 +1,11 @@
 <?php 
 require('../mikrotik_api.php');
+require('../function.php');
 $getDataInterface = $API->comm('/queue/simple/print');
 
-function dataUnitBit($bytes)
-    {
-        if ($bytes >= 1000000000)
-        {
-            $bytes = number_format($bytes / 1000000000) . ' Gbps';
-        }
-        elseif ($bytes >= 1000000)
-        {
-            $bytes = number_format($bytes / 1000000) . ' Mbps';
-        }
-        elseif ($bytes >= 1000)
-        {
-            $bytes = number_format($bytes / 1000) . ' Kbps';
-        }
-        elseif ($bytes > 1)
-        {
-            $bytes = $bytes . ' bps';
-        }
-        elseif ($bytes == 1)
-        {
-            $bytes = $bytes . ' bit';
-        }
-        else
-        {
-            $bytes = 'Unlimited';
-        }
 
-        return $bytes;
-}
 
-function dataPenggunaan($bytes)
-    {
-        if ($bytes >= 1073741824)
-        {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576)
-        {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024)
-        {
-            $bytes = number_format($bytes / 1024, 2) . ' KB';
-        }
-        elseif ($bytes > 1)
-        {
-            $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
-            $bytes = $bytes . ' byte';
-        }
-        else
-        {
-            $bytes = '0 bytes';
-        }
 
-        return $bytes;
-}
 
 
 ?>
@@ -76,9 +21,9 @@ function dataPenggunaan($bytes)
     <title>Document</title>
 </head>
 <body>
-<div class="comtainer-fluid">
+<div class="container-fluid">
     
-<table class="table table-primary table-hover table-striped">
+<table class="table table-light table-hover">
   <thead>
     <tr>
       <th scope="row">ID Client</th>
@@ -87,6 +32,9 @@ function dataPenggunaan($bytes)
       <th scope="col">Download</th>
       <th scope="col">Upload</th>
       <th scope="col">Total Penggunaan</th>
+      <th scope="col">Download Rate</th>
+      <th scope="col">Upload Rate</th>
+
     </tr>
   </thead>
   <tbody>
@@ -109,25 +57,116 @@ function dataPenggunaan($bytes)
         }
         $nama = $data['name'];
         $ip = $data['target'];
+        //Speed
         $speedDownload = dataUnitBit(explode('/',$data['max-limit'],2)[1]);
         $speedUpload = dataUnitBit(explode('/',$data['max-limit'],2)[0]);
+        //Rate
+        $trafficDownload = dataRate(explode('/',$data['rate'],2)[1]);
+        $trafficUpload = dataRate(explode('/',$data['rate'],2)[0]);
+        //Bytes
         $penggunaanDownload = explode('/',$data['bytes'],2)[1];
         $penggunaanUpload = explode('/',$data['bytes'],2)[0];
         $penggunaanBoth = $penggunaanDownload + $penggunaanUpload;
         $penggunaan = dataPenggunaan($penggunaanBoth);
         //$penggunaan = dataPenggunaan(explode('/',$data['bytes'],2)[1]);
         echo "<tr>";
-        echo "<th> $client $pisahStrip</th>";
-        echo "<td>$nama</td>";
-        echo "<td>$ip</td>";
-        echo "<td>$speedDownload</td>";
-        echo "<td>$speedUpload</td>";
-        echo "<td>$penggunaan</td>";
 
+             //Disable Queue
+             if($data['disabled'] == "false"){
+                $td = '<td class="table-danger">';
+            }else{
+                $td = '<td>';
+            }
+        //Comment
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo "$td $client $pisahStrip</th>";
+            }else{
+                
+            }
+        }else{
+
+        }
+   
+
+        //Nama
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $nama</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //IP
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $ip</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //Downspeed
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $speedDownload</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //Upspeed
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $speedUpload</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //Penggunaan
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $penggunaan</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //DownRate
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $trafficDownload</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+        //Uprate
+        if(!empty($data['comment'])){
+            if(explode('-', $data['comment'], 3)[0] == "cl"){
+                echo " $td . $trafficUpload</td>";
+            }else{
+                
+            }
+        }else{
+            
+        }
+
+
+        echo "</tr>";
+        
     }
       ?>
 
-    </tr>
+    
   </tbody>
 </table>
 
@@ -138,4 +177,5 @@ function dataPenggunaan($bytes)
     
 </body>
 <script src="/js/bootstrap.bundle.min.js"></script>
+
 </html>

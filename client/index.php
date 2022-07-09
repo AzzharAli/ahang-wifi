@@ -3,9 +3,12 @@ session_start();
 if($_SESSION['user_status']!="ngewaifu"){
   header("location:../index.php?pesan=belum_login");
 }
-include '../db.php';
-// API Mikrotik Dummy Variable
-$penggunaan = "1334354";
+require('../db.php');
+require('../function.php');
+require('../config.php');
+
+
+
 
 
 //DB
@@ -16,8 +19,18 @@ $hargaView = number_format($dataUser['harga']);
 $getIp = $dataUser['ip'];
 $namaUser = $dataUser['nama'];
 $banter = $dataUser['kecepatan'];
+$api_id = $dataUser['api_id'];
 //ping GET From Server
-$url="http://home.eula.my.id/getping.php/?ip=$getIp";
+$url="http://$ipPingAPI/getping.php/?ip=$getIp";
+
+//bayar Hoetank
+if($dataUser['pembayaran'] == "true"){
+  $statusHoetank = "<span class='badge bg-success'>Sudah Dibayar</span>";
+}elseif($dataUser['pembayaran'] == "false"){
+  $statusHoetank = "<span class='badge bg-danger'>Belum Dibayar</span>";
+}else{
+  $statusHoetank = "<span class='badge bg-primary'>Gratis</span>";
+}
  
 $curl = curl_init();
 curl_setopt($curl, CURLOPT_URL, $url);
@@ -25,11 +38,51 @@ curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 $ping = curl_exec($curl);
 curl_close($curl);
 
-function splitPingJson($splitPingJson){
-  $ping = explode('m', explode(' ', explode('"', $splitPingJson, 10)[3], 10)[2], 2)[0];
-  //$ping = explode('"', $splitPingJson, 10);
-  return($ping);
+function totalPenggunaan ($api_id){
+  require('../mikrotik_api.php');
+  $getDataInterface = $API->comm('/queue/simple/print');
+  foreach($getDataInterface as $dataInt){
+  if(!empty($dataInt['comment'])){
+    if(explode('-', $dataInt['comment'], 3)[1]==$api_id){
+        $bytes = explode('/', $dataInt['bytes'], 2)[0] + explode('/', $dataInt['bytes'], 2)[1];
+        if ($bytes >= 1073741824)
+        {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        }
+        elseif ($bytes >= 1048576)
+        {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        }
+        elseif ($bytes >= 1024)
+        {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        }
+        elseif ($bytes > 1)
+        {
+            $bytes = $bytes . ' bytes';
+        }
+        elseif ($bytes == 1)
+        {
+            $bytes = $bytes . ' byte';
+        }
+        else
+        {
+            $bytes = '0 bytes';
+        }
+        echo $bytes;
+    }else{
+  
+    }
+  }else{
+  
+  }
+  
+  }
+
 }
+
+
+
 
 
 //$ping = exec("ping -n 1 www.google.com");
@@ -62,7 +115,7 @@ function splitPingJson($splitPingJson){
       <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
-    <a class="navbar-brand" href="#">AHANG WiFi</a>
+    <a class="navbar-brand" href="#">EulaNET</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -92,13 +145,13 @@ function splitPingJson($splitPingJson){
 <div class="container" style="">
     <div class="row">
         <!-- Col 1 -->
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card text-center" style="max-width: 50rem; height: 20rem;">
                 <div class="card-body text-center">
                     <h5 class="card-title">Layanan Anda</h5>
                     <h1><?php echo $banter ?></h1>
                     <h5 class="card-title">Mbps</h5>
-                    <a class="btn btn-outline-secondary" href=" https://api.whatsapp.com/send/?phone=+6285608698687&text=Mau Upgrade Paket Dari <?php echo $banter ?> Mbps ke " role="button">Upgrade</a>
+                    <a class="btn btn-outline-secondary" href=" https://api.whatsapp.com/send/?phone=+6285608689687&text=User <?php echo $namaUser ?> Mau Upgrade Paket Dari <?php echo $banter ?> Mbps ke " role="button">Upgrade</a>
                     
                 </div>
             </div>
@@ -110,7 +163,7 @@ function splitPingJson($splitPingJson){
             <!-- Tagihan -->
             <div class="card mb-3" style="max-width: 100rem;">
                 <div class="card-body">
-                    <p class="card-text">Tagihan Bulanan Anda <span class="badge bg-danger">Belum Dibayar</span></p>
+                    <p class="card-text">Tagihan Bulanan Anda <?php echo $statusHoetank ?></p>
                     <h5 class="card-title">Rp. <?php echo $hargaView ?></h5>
                 </div>
             <div class="card-footer">Bayar Sebelum 20 Januari 2023 </div>
@@ -119,18 +172,18 @@ function splitPingJson($splitPingJson){
             <div class="card mb-3" style="max-width: 100rem;">
                 <div class="card-body">
                     <p class="card-text">Total Penggunaan</p>
-                    <h5 class="card-title">10GB</h5>
+                    <h5 class="card-title"><?php totalPenggunaan($api_id); //Penggunaan Bandwidth ?></h5>
                 </div>
-            <div class="card-footer">Terhitung Sejak 1 Januari 2023 Jam 00:00 </div>
+            <!-- <div class="card-footer">Terhitung Selama <?php //echo mikrotikUptime() ?> </div> -->
             </div>
 
             <!-- Status Jaringan -->
             <div class="card mb-3" style="max-width: 100rem;">
                 <div class="card-body">
                     <p class="card-text">Status Jaringan</p>
-                    <h5 class="card-title"><i class="bi bi-wifi"></i> Normal</h5><!-- Normal <i class="bi bi-wifi"></i> | Gangguan Massal | Perbaikan <i class="bi bi-wifi-off"></i> -->
+                    <h5 class="card-title"><i class="bi bi-wifi"></i> <?php echo statusConnectClient($ping)  ?></h5><!-- Normal <i class="bi bi-wifi"></i> | Gangguan Massal | Perbaikan <i class="bi bi-wifi-off"></i> -->
                 </div>
-            <div class="card-footer">Ping Server <?php echo splitPingJson($ping); ?></div>
+            <div class="card-footer"><?php echo splitPingJson($ping); ?></div>
             </div>
 
 

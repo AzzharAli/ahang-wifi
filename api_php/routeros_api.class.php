@@ -139,6 +139,7 @@ class RouterosAPI
             $this->debug('Connected...');
         } else {
             $this->debug('Error...');
+            $linecon = 0;
         }
         return $this->connected;
     }
